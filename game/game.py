@@ -4,20 +4,28 @@ import os
 from pygame_shared.utils.image_utils import ImageUtils
 from constants import Constants
 from pygame_shared.animation.animation_controller import AnimationController
+from pygame_shared.utils.timer import Timer, TimerType
 
 pygame.init()
-
-
 
 class Game:
 
     FONT = pygame.font.SysFont("Consolas", 60)
 
-    def __init__(self, screen, game_state):
-        self.screen = screen
+    def __init__(self, game_state):
+        self.screen = pygame.display.get_surface()
         self.game_state = game_state
         self.player_animation_controller = AnimationController()
         self.load_animations()
+        self.timer = Timer()
+
+        self.timer.add_timer(name="show_message", timer_type=TimerType.LOOP, active=True, duration_milli=1000,
+                             callback=lambda: self.change_show_message())
+        self.show_message = False
+
+    def change_show_message(self):
+        print(self.show_message)
+        self.show_message = not self.show_message
 
     def handle_events(self):
         for event in pygame.event.get():
@@ -28,8 +36,10 @@ class Game:
                 if event.key == pygame.K_1:
                     self.player_animation_controller.set_active_animation("idle")
 
+
                 if event.key == pygame.K_2:
                     self.player_animation_controller.set_active_animation("run")
+
 
                 if event.key == pygame.K_3:
                     self.player_animation_controller.set_active_animation("double_jump")
@@ -38,10 +48,15 @@ class Game:
                     self.player_animation_controller.set_active_animation("fall")
 
 
+
     def draw(self):
         self.screen.fill((0, 0, 0))
 
         self.screen.blit(self.player_animation_controller.get_image(),(100,100))
+
+        if self.show_message:
+            timer_message = self.FONT.render("Timer Fired", 1, "white")
+            self.screen.blit(timer_message, (10, 10))
 
 
         pygame.display.flip()
@@ -51,6 +66,8 @@ class Game:
             dt = self.game_state.clock.tick(60)
 
             self.handle_events()
+
+            self.timer.update()
 
             self.draw()
 

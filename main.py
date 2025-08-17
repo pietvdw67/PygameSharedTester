@@ -17,7 +17,7 @@ class Main:
 
 
     def run(self):
-        game = Game(self.screen, self.game_state)
+        game = Game(self.game_state)
         self.game_state.running = True
         game.run_loop()
 
